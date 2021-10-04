@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: azdo-pipelines-agent
+  namespace: azuredevops
+  labels:
+    app: azdo-agent
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: azdo-agent
+  template:
+    metadata:
+      labels:
+        app: azdo-agent
+    spec:
+      containers:
+      - name: azdo-pipelines-agent
+        resources:
+          limits:
+            cpu: 1000m
+            memory: 2048Mi
+        image: ghcr.io/crayon/azdo-pipelines-agent:v2.192.0
+        env:
+          - name: AZP_URL
+            valueFrom:
+              secretKeyRef:
+                name: azdevops
+                key: AZP_URL
+          - name: AZP_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: azdevops
+                key: AZP_TOKEN
+          - name: AZP_POOL
+            valueFrom:
+              secretKeyRef:
+                name: azdevops
+                key: AZP_POOL
