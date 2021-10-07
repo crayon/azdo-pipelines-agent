@@ -9,4 +9,5 @@ rm packages-microsoft-prod.deb
 
 apt-get update && apt-get install -y --no-install-recommends \
 dotnet-sdk-5.0 \
-dotnet-sdk-3.1
+dotnet-sdk-3.1 \
+git
