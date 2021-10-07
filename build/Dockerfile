@@ -1,18 +1,20 @@
 FROM ubuntu:20.04 as builder
 
 ENV DEBIAN_FRONTEND=noninteractive
-RUN echo "APT::Get::Assume-Yes \"true\";" > /etc/apt/apt.conf.d/90assumeyes \
+RUN \
+  echo "APT::Get::Assume-Yes \"true\";" > /etc/apt/apt.conf.d/90assumeyes \
   && apt-get update && apt-get install -y --no-install-recommends \
-      ca-certificates \
-      curl \
-      jq \
-      git \
-      iputils-ping \
-      libcurl4 \
-      libicu66 \
-      libunwind8 \
-      netcat \
-      libssl1.0 \
+    ca-certificates \
+    curl \
+    jq \
+    git \
+    iputils-ping \
+    libcurl4 \
+    libicu66 \
+    libunwind8 \
+    netcat \
+    libssl1.0 \
+    wget \
   && rm -rf /var/lib/apt/lists/* \
   && curl -LsS https://aka.ms/InstallAzureCLIDeb | bash \
   && rm -rf /var/lib/apt/lists/*
@@ -28,11 +30,12 @@ RUN if [ "$TARGETARCH" = "amd64" ]; then \
     fi; \
     curl -LsS "$AZP_AGENTPACKAGE_URL" | tar -xz
 
-COPY start.sh .
-RUN chmod +x start.sh
+COPY --chmod=555 *.sh .
 
-FROM gcr.io/distroless/base-debian10
+FROM ubuntu:20.04
 
 COPY --from=builder /azp /azp
 
-ENTRYPOINT [ "/azp/start.sh" ]
+WORKDIR /azp
+RUN ./dependencies.sh
+ENTRYPOINT [ "./start.sh" ]
