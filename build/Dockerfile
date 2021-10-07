@@ -1,26 +1,24 @@
-FROM ubuntu
-# AS builder
-RUN echo "APT::Get::Assume-Yes \"true\";" > /etc/apt/apt.conf.d/90assumeyes
-ARG DEBIAN_FRONTEND=noninteractive
+FROM ubuntu:20.04 as builder
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    ca-certificates \
-    curl \
-    jq \
-    git \
-    iputils-ping \
-    libcurl4 \
-    libicu66 \
-    libunwind8 \
-    netcat \
-    libssl1.0 \
-  && rm -rf /var/lib/apt/lists/*
-
-RUN curl -LsS https://aka.ms/InstallAzureCLIDeb | bash \
+ENV DEBIAN_FRONTEND=noninteractive
+RUN echo "APT::Get::Assume-Yes \"true\";" > /etc/apt/apt.conf.d/90assumeyes \
+  && apt-get update && apt-get install -y --no-install-recommends \
+      ca-certificates \
+      curl \
+      jq \
+      git \
+      iputils-ping \
+      libcurl4 \
+      libicu66 \
+      libunwind8 \
+      netcat \
+      libssl1.0 \
+  && rm -rf /var/lib/apt/lists/* \
+  && curl -LsS https://aka.ms/InstallAzureCLIDeb | bash \
   && rm -rf /var/lib/apt/lists/*
 
 ARG TARGETARCH=amd64
-ARG AGENT_VERSION=2.192.0
+ARG AGENT_VERSION=2.185.1
 
 WORKDIR /azp
 RUN if [ "$TARGETARCH" = "amd64" ]; then \
@@ -30,7 +28,10 @@ RUN if [ "$TARGETARCH" = "amd64" ]; then \
     fi; \
     curl -LsS "$AZP_AGENTPACKAGE_URL" | tar -xz
 
-COPY ./start.sh .
-RUN chmod +x start.sh
+COPY --chmod=555 start.sh .
 
-ENTRYPOINT [ "./start.sh" ]
+FROM gcr.io/distroless/base-debian10
+
+COPY --from=builder /azp /azp
+
+ENTRYPOINT [ "/azp/start.sh" ]
