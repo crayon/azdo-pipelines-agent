@@ -28,7 +28,7 @@ RUN if [ "$TARGETARCH" = "amd64" ]; then \
     fi; \
     curl -LsS "$AZP_AGENTPACKAGE_URL" | tar -xz
 
-COPY --chmod=555 start.sh .
+COPY --chmod=777 start.sh .
 
 FROM gcr.io/distroless/base-debian10
 
