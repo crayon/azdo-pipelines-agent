@@ -1,4 +1,4 @@
-FROM ubuntu:20.04 as builder
+FROM ubuntu:20.04 as azp
 
 ENV DEBIAN_FRONTEND=noninteractive
 RUN \
@@ -14,10 +14,7 @@ RUN \
     libunwind8 \
     netcat \
     libssl1.0 \
-    wget \
-  && rm -rf /var/lib/apt/lists/* \
-  && curl -LsS https://aka.ms/InstallAzureCLIDeb | bash \
-  && rm -rf /var/lib/apt/lists/*
+    wget
 
 ARG TARGETARCH=amd64
 ARG AGENT_VERSION=2.185.1
@@ -34,7 +31,10 @@ COPY --chmod=555 *.sh .
 
 FROM ubuntu:20.04
 
-COPY --from=builder /azp /azp
+COPY --from=azp /azp /azp
+
+ARG TOOLS
+ENV TOOLS=$TOOLS
 
 WORKDIR /azp
 RUN ./dependencies.sh
