@@ -42,7 +42,8 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
-            TOOLS=k8s
+            KUBERNETES=true
+            DOCKER=true
 
 
       - name: Run Trivy vulnerability scanner
