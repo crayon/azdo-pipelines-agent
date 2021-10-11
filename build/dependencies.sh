@@ -16,8 +16,12 @@ git
 curl -LsS https://aka.ms/InstallAzureCLIDeb | bash \
   && rm -rf /var/lib/apt/lists/*
 
-shopt -s nocasematch
-if [[ "${TOOLS}" = "k8s" ]]
-  then
-    curl https://raw.githubusercontent.com/crayon/azdo-pipelines-agent/main/scripts/kubernetes.sh | bash
+# Kubernetes
+if [[ ${KUBERNETES} ]];
+  then curl https://raw.githubusercontent.com/crayon/azdo-pipelines-agent/main/scripts/kubernetes.sh | bash ;
+fi
+
+# Docker
+if [ ${DOCKER} ];
+  then curl https://get.docker.com | bash ;
 fi
