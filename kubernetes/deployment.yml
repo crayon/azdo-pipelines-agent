@@ -1,11 +1,12 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: azdo-pipelines-agent
   namespace: azuredevops
   labels:
     app: azdo-agent
 spec:
+  serviceName: azdo-pipelines-agent
   replicas: 1
   selector:
     matchLabels:
@@ -15,6 +16,7 @@ spec:
       labels:
         app: azdo-agent
     spec:
+      serviceAccountName: azdo-pipelines-agent
       containers:
       - name: azdo-pipelines-agent
         resources:
@@ -22,6 +24,12 @@ spec:
             cpu: 1000m
             memory: 2048Mi
         image: ghcr.io/crayon/azdo-pipelines-agent:v2.192.0
+        imagePullPolicy: Always
+        securityContext:
+          privileged: true
+          # capabilities:
+          #   add:
+          #     - NET_ADMIN
         env:
           - name: AZP_URL
             valueFrom:
@@ -38,3 +46,47 @@ spec:
               secretKeyRef:
                 name: azdevops
                 key: AZP_POOL
+        volumeMounts:
+        - mountPath: /var/lib/docker
+          name: lib-docker
+      volumes:
+      - name: lib-docker
+        persistentVolumeClaim:
+          claimName: azdo-docker-volume
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: azdo-docker-volume
+  namespace: azuredevops
+spec:
+  accessModes:
+  - ReadWriteOnce
+  storageClassName: managed-premium
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: azdo-pipelines-agent
+  namespace: azuredevops
+  labels:
+    app: azdo-agent
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: azdo-cluster-admin
+  labels:
+    app: azdo-agent
+roleRef:
+  kind: ClusterRole
+  name: cluster-admin
+  apiGroup: rbac.authorization.k8s.io
+subjects:
+  - kind: ServiceAccount
+    name: azdo-pipelines-agent
+    namespace: azuredevops
+---
