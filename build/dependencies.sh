@@ -2,7 +2,7 @@
 
 export DEBIAN_FRONTEND=noninteractive
 echo "APT::Get::Assume-Yes \"true\";" > /etc/apt/apt.conf.d/90assumeyes \
-  && apt-get update && apt-get install -y --no-install-recommends ca-certificates wget curl libicu66
+  && apt-get update && apt-get install -y --no-install-recommends ca-certificates wget curl libicu66 apt-transport-https software-properties-common
 
 wget https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
 dpkg -i packages-microsoft-prod.deb
@@ -11,12 +11,13 @@ rm packages-microsoft-prod.deb
 apt-get update && apt-get install -y --no-install-recommends \
   dotnet-sdk-5.0 \
   dotnet-sdk-3.1 \
-  git
+  git \
+  powershell
 
 
 # AZ Cli
 curl -LsS https://aka.ms/InstallAzureCLIDeb | bash \
-  && rm -rf /var/lib/apt/lists/*
+  && rm -rf /var/lib/apt/lists/
 
 # Kubernetes
 if [[ ${KUBERNETES} ]]; then
