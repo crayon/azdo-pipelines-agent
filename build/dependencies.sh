@@ -11,7 +11,7 @@ rm packages-microsoft-prod.deb
 apt-get update && apt-get install -y --no-install-recommends \
   dotnet-sdk-5.0 \
   dotnet-sdk-3.1 \
-  git \
+  git unzip \
   powershell
 
 
@@ -21,9 +21,6 @@ curl -LsS https://aka.ms/InstallAzureCLIDeb | bash \
 
 # Kubernetes
 if [[ ${KUBERNETES} ]]; then
-  echo "----"
-  echo "Installing tools for working with Kubernetes"
-  echo "----"
   curl https://raw.githubusercontent.com/crayon/azdo-pipelines-agent/main/scripts/kubernetes.sh | bash ;
 fi
 
