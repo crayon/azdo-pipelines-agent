@@ -17,7 +17,7 @@ RUN \
     wget
 
 ARG TARGETARCH=amd64
-ARG AGENT_VERSION=2.195.2
+ARG AGENT_VERSION=2.200.2
 
 WORKDIR /azp
 RUN if [ "$TARGETARCH" = "amd64" ]; then \
